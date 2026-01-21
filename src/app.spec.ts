@@ -85,6 +85,30 @@ describe('NestJS v11 Routing Experiment', () => {
     });
   });
 
+  describe('GET /users/address (different controller, same segment count)', () => {
+    it('should test if /users/address route is honored or absorbed by /users/:id', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/users/address')
+        .expect(200);
+
+      // This tests the key difference:
+      // - /users/config is in the SAME controller as /users/:id
+      // - /users/address is in a DIFFERENT controller (UserAddressController)
+      console.log('\n=== /users/address Test Result ===');
+      console.log(`Matched route: ${response.body.route}`);
+      console.log(`Description: ${response.body.description}`);
+      
+      // Document the actual behavior
+      if (response.body.route === '/users/address') {
+        console.log('✓ NestJS prioritizes specific route /users/address over /users/:id');
+        console.log('  (Different controller from /users/:id)');
+      } else if (response.body.route === '/users/:id') {
+        console.log('✗ /users/address was absorbed by /users/:id (address treated as id)');
+        console.log('  (Even though in different controller)');
+      }
+    });
+  });
+
   describe('GET /users/:id/contents', () => {
     it('should return user contents list and NOT be absorbed by /users/:id', async () => {
       const response = await request(app.getHttpServer())
@@ -146,10 +170,11 @@ describe('NestJS v11 Routing Experiment', () => {
 
   describe('Controller registration order test', () => {
     it('should verify controller registration order does not affect route matching', async () => {
-      // UserContentsController is registered FIRST in AppModule
-      // UsersController is registered SECOND in AppModule
+      // Controllers are registered in this order: UsersController, UserContentsController, UserAddressController
+      // UsersController has /users/:id (registered FIRST)
+      // UserContentsController has /users/:id/contents (registered SECOND)
       
-      // Even though UsersController with /users/:id is registered second,
+      // Even though UsersController with /users/:id is registered first,
       // the more specific /users/:id/contents should still work
       const response = await request(app.getHttpServer())
         .get('/users/999/contents')
@@ -158,9 +183,35 @@ describe('NestJS v11 Routing Experiment', () => {
       expect(response.body.route).toBe('/users/:id/contents');
       
       console.log('\n=== Controller Registration Order Test ===');
-      console.log('Registration order: [UserContentsController, UsersController]');
+      console.log('Registration order: [UsersController, UserContentsController, UserAddressController]');
       console.log(`Request to /users/999/contents matched: ${response.body.route}`);
-      console.log('✓ Controller registration order does not cause route shadowing');
+      console.log('✓ Controller registration order does not cause route shadowing for different segment counts');
+    });
+
+    it('should compare same-segment routes in different controllers', async () => {
+      // /users/config is in UsersController (same as /users/:id)
+      // /users/address is in UserAddressController (different from /users/:id)
+      
+      const configResponse = await request(app.getHttpServer())
+        .get('/users/config')
+        .expect(200);
+      
+      const addressResponse = await request(app.getHttpServer())
+        .get('/users/address')
+        .expect(200);
+
+      console.log('\n=== Same Segment Count Comparison ===');
+      console.log(`/users/config (same controller as :id): matched ${configResponse.body.route}`);
+      console.log(`/users/address (different controller): matched ${addressResponse.body.route}`);
+      
+      // Key finding: Both are absorbed by /users/:id regardless of controller
+      expect(configResponse.body.route).toBe('/users/:id');
+      expect(addressResponse.body.route).toBe('/users/:id');
+      
+      console.log('\n=== Key Finding ===');
+      console.log('⚠️ Both /users/config AND /users/address are absorbed by /users/:id');
+      console.log('⚠️ Being in a different controller does NOT prevent route absorption');
+      console.log('⚠️ Controller registration order determines route priority for same-segment routes');
     });
   });
 });

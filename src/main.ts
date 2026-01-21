@@ -9,6 +9,7 @@ async function bootstrap() {
   console.log('  - GET http://localhost:3000/users');
   console.log('  - GET http://localhost:3000/users/123');
   console.log('  - GET http://localhost:3000/users/config');
+  console.log('  - GET http://localhost:3000/users/address');
   console.log('  - GET http://localhost:3000/users/123/contents');
   console.log('  - GET http://localhost:3000/users/123/contents/456');
 }
