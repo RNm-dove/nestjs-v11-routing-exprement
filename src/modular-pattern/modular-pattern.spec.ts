@@ -60,6 +60,32 @@ describe('Modular Pattern Routing Experiment', () => {
     });
   });
 
+  describe('GET /users/config - Same Controller Test', () => {
+    it('should test if /users/config is absorbed by /users/:id in modular pattern', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/users/config')
+        .expect(200);
+
+      console.log('\n=== /users/config Test Result (Modular Pattern) ===');
+      console.log(`Matched route: ${response.body.route}`);
+      console.log(`Description: ${response.body.description}`);
+      
+      // Document the actual behavior
+      if (response.body.route === '/users/config') {
+        console.log('✓ /users/config route is honored (NOT absorbed by /users/:id)');
+        console.log('✓ Modular pattern allows specific routes within same controller');
+        expect(response.body.route).toBe('/users/config');
+        expect(response.body.description).toContain('Users Config');
+        expect(response.body.pattern).toBe('modular');
+      } else if (response.body.route === '/users/:id') {
+        console.log('✗ /users/config was absorbed by /users/:id (config treated as id)');
+        console.log('✗ Modular pattern does NOT prevent route shadowing even within same controller');
+        expect(response.body.route).toBe('/users/:id');
+        expect(response.body.userId).toBe('config');
+      }
+    });
+  });
+
   describe('GET /users/frends - Key Test Case', () => {
     it('should test if /users/frends is absorbed by /users/:id', async () => {
       const response = await request(app.getHttpServer())

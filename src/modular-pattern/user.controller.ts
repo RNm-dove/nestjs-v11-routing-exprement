@@ -31,4 +31,17 @@ export class UserController {
       userId: id,
     };
   }
+
+  /**
+   * GET /users/config - Defined AFTER /users/:id to test route absorption
+   * Tests whether modular pattern prevents absorption by /users/:id
+   */
+  @Get('/users/config')
+  getUsersConfig() {
+    return {
+      route: '/users/config',
+      description: 'Users Config (modular pattern)',
+      pattern: 'modular',
+    };
+  }
 }
