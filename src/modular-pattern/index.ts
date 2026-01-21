@@ -1,0 +1,9 @@
+export { UserController } from './user.controller';
+export { UserProfileController } from './user-profile.controller';
+export { UserFrendsController } from './user-frends.controller';
+export { UserModule } from './user.module';
+export { UserProfileModule } from './user-profile.module';
+export { UserFrendsModule } from './user-frends.module';
+export { UsersFrendsIndexModule } from './users-frends-index.module';
+export { UsersIndexModule } from './users-index.module';
+export { AppModuleModular } from './app-module-modular';
