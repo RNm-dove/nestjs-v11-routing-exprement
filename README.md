@@ -10,6 +10,20 @@ NestJS v11におけるroute shadowingの挙動を検証する実験リポジト�
 - Route shadowing（ルートの上書き）が発生するかを確認
 - `/users/:id/contents` が `/users/:id` に吸収されないかを検証
 
+## 🔬 実験パターン
+
+このリポジトリには2つの実装パターンがあります：
+
+### 1. オリジナルパターン (直接登録)
+- 全てのコントローラーを `AppModule` に直接登録
+- 詳細: `src/app.module.ts`, `EXPERIMENT_RESULTS.md`
+
+### 2. モジュラーパターン (階層構造)
+- コントローラーを個別のモジュールに分離
+- モジュールの階層的なimport構造
+- 詳細: `src/modular-pattern/`, `src/modular-pattern/EXPERIMENT_RESULTS_MODULAR.md`
+- GET `/users/frends` エンドポイントでのroute shadowing検証
+
 ## 📊 実験結果
 
 ✅ **NestJS v11では、より具体的なパスが優先的にルーティングされます！**
@@ -90,15 +104,30 @@ npm start
 ```
 .
 ├── src/
-│   ├── app.module.ts                # AppModule - コントローラー登録
+│   ├── app.module.ts                # AppModule - コントローラー登録（オリジナルパターン）
 │   ├── users.controller.ts          # UsersController - 基本ルート
 │   ├── user-contents.controller.ts  # UserContentsController - コンテンツルート
 │   ├── user-address.controller.ts   # UserAddressController - アドレスルート
 │   ├── main.ts                      # アプリケーションエントリポイント
-│   └── app.spec.ts                  # ルーティング実験テスト
+│   ├── app.spec.ts                  # ルーティング実験テスト
+│   └── modular-pattern/             # モジュラーパターン実装
+│       ├── README.md                # モジュール構造説明
+│       ├── EXPERIMENT_RESULTS_MODULAR.md  # 実験結果レポート
+│       ├── app-module-modular.ts    # AppModuleModular - モジュール階層構造
+│       ├── users-index.module.ts    # UsersIndexModule - ユーザー機能統合
+│       ├── user.module.ts           # UserModule - 基本ユーザールート
+│       ├── user.controller.ts       # UserController
+│       ├── user-profile.module.ts   # UserProfileModule - プロフィールルート
+│       ├── user-profile.controller.ts  # UserProfileController
+│       ├── users-frends-index.module.ts  # UsersFrendsIndexModule - フレンズ統合
+│       ├── user-frends.module.ts    # UserFrendsModule - フレンズルート
+│       ├── user-frends.controller.ts  # UserFrendsController (GET /users/frends)
+│       ├── modular-pattern.spec.ts  # モジュラーパターンテスト
+│       └── index.ts                 # エクスポート定義
 ├── .github/
 │   └── workflows/
 │       └── test.yml                 # GitHub Actions CI設定
+├── EXPERIMENT_RESULTS.md            # オリジナルパターン実験結果
 ├── package.json                      # プロジェクト設定
 ├── tsconfig.json                     # TypeScript設定
 └── jest.config.js                    # Jest設定
