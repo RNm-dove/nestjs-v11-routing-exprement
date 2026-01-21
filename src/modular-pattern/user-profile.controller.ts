@@ -7,6 +7,24 @@ import { Controller, Get, Param } from '@nestjs/common';
 @Controller()
 export class UserProfileController {
   /**
+   * GET /users/profile-meta - Returns profile metadata
+   * Tests whether this route is absorbed by /users/:id
+   * Note: Same segment count (2 segments), different controller
+   */
+  @Get('/users/profile-meta')
+  getProfileMeta() {
+    return {
+      route: '/users/profile-meta',
+      description: 'Profile metadata (modular pattern)',
+      pattern: 'modular',
+      data: {
+        version: '1.0',
+        fields: ['name', 'email', 'avatar'],
+      },
+    };
+  }
+
+  /**
    * GET /users/:id/profile - Returns profile of a specific user
    */
   @Get('/users/:id/profile')

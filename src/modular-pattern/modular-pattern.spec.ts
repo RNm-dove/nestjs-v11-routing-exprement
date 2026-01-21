@@ -141,6 +141,33 @@ describe('Modular Pattern Routing Experiment', () => {
     });
   });
 
+  describe('GET /users/profile-meta - Different Controller Test', () => {
+    it('should test if /users/profile-meta is absorbed by /users/:id', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/users/profile-meta')
+        .expect(200);
+
+      console.log('\n=== /users/profile-meta Test Result (Modular Pattern) ===');
+      console.log(`Matched route: ${response.body.route}`);
+      console.log(`Description: ${response.body.description}`);
+      
+      // Document the actual behavior
+      if (response.body.route === '/users/profile-meta') {
+        console.log('✓ /users/profile-meta route is honored (NOT absorbed by /users/:id)');
+        console.log('✓ Modular pattern allows specific routes in different controllers');
+        expect(response.body.route).toBe('/users/profile-meta');
+        expect(response.body.description).toContain('Profile metadata');
+        expect(response.body.pattern).toBe('modular');
+        expect(response.body.data).toBeDefined();
+      } else if (response.body.route === '/users/:id') {
+        console.log('✗ /users/profile-meta was absorbed by /users/:id (profile-meta treated as id)');
+        console.log('✗ Different controller does NOT prevent route shadowing');
+        expect(response.body.route).toBe('/users/:id');
+        expect(response.body.userId).toBe('profile-meta');
+      }
+    });
+  });
+
   describe('GET /users/:id/profile', () => {
     it('should return user profile', async () => {
       const response = await request(app.getHttpServer())
